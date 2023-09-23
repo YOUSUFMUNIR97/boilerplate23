@@ -15,7 +15,7 @@ const Signup = () => {
     const signupuser = () => {
         console.log(model);
         fbSigup(model).then((
-            res => {navigate("/Login")}
+            res => {navigate("/login")}
         )).catch((err)=>{
             console.log(err)
         })

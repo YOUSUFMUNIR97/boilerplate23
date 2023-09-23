@@ -39,6 +39,7 @@ interface Props {
    * You won't need it on your project.
    */
   window?: () => Window;
+  // screen: any;
 }
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',

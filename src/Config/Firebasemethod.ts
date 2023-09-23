@@ -1,7 +1,6 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { getDatabase, ref, set, onValue } from "firebase/database";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import { app } from "./Firebaseconfig";
-import { resolve } from "path";
 
 
 let auth = getAuth(app)
@@ -19,18 +18,18 @@ export let fbLogin = (body: any) => {
                     let id = res.user.uid
 
                     const referece = ref(db, `users/${id}`)
-                    onValue(referece, (data)=> {
-    if (data.exists()) {
-        resolve(data.val())
-    }
-else{
-    reject("No Data")
-}
-})
-            }).catch(err => {
-    reject(err)
-})
-}
+                    onValue(referece, (data) => {
+                        if (data.exists()) {
+                            resolve(data.val())
+                        }
+                        else {
+                            reject("No Data")
+                        }
+                    })
+                }).catch(err => {
+                    reject(err)
+                })
+        }
     }
     )
 }
@@ -59,3 +58,48 @@ export let fbSigup = (body: any) => {
 
 
 }
+
+export let fbAuth = () => {
+    return new Promise((resolve, reject) => {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const uid = user.uid;
+                resolve(uid)
+            }
+            else {
+                reject("no user is loged in")
+            }
+        })
+    })
+}
+
+export let fbAdd = (nodeName: string, body: any, id?: string) => {
+    return new Promise((resolve,reject)=> {
+    const TaskId = push(ref(db, `${nodeName}/`)).key
+
+    body.id = TaskId
+
+    const referece = ref(db, `${nodeName}/${body.id}`)
+
+set(referece, body).then(res => {
+        resolve("Data Send Successfully")
+    }).catch(err => {
+        reject(err)
+    })
+    })
+}
+
+export let fbGet = (nodeName: string, id?: any) => {
+    return new Promise((resolve, reject) => {
+        const referece = ref(db, `${nodeName}/${id ? id : ""}`)
+        onValue(referece, (data) => {
+            if (data.exists()) {
+                resolve(Object.values(data.val()))
+            }
+            else {
+                reject("No Data")
+            }
+        })
+    })
+}
+
